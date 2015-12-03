@@ -3,8 +3,8 @@
 let _ = require('lodash');
 
 window.glut = {
-	cart: require('./cart'),
-	products: require('./products'),
-	config: require('./config'),
-	transactions: require('./transactions')
+  cart: require('./cart'),
+  products: require('./products'),
+  config: require('./config'),
+  transactions: require('./transactions')
 };
