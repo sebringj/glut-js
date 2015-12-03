@@ -1,0 +1,33 @@
+{
+  "name": "glut-js",
+  "version": "1.0.0",
+  "description": "javascript to include in your client-side web app to interact with the glut-api",
+  "main": "./src/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sebringj/glut-js.git"
+  },
+  "author": "Jason Sebring",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/sebringj/glut-js/issues"
+  },
+  "homepage": "https://github.com/sebringj/glut-js#readme",
+  "devDependencies": {
+    "babel-preset-es2015": "^6.1.18",
+    "gulp": "^3.9.0",
+    "gulp-babel": "^6.1.1",
+    "gulp-concat": "^2.6.0",
+    "gulp-minify": "0.0.5",
+    "gulp-sourcemaps": "^1.6.0",
+    "vinyl-buffer": "^1.0.0",
+    "vinyl-source-stream": "^1.1.0"
+  },
+  "dependencies": {
+    "lodash": "^3.10.1",
+    "superagent": "^1.4.0"
+  }
+}
