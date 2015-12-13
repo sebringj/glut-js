@@ -2,6 +2,7 @@
 
 let _ = require('lodash');
 let api = require('./api');
+let emitter = require('event-emitter')({});
 
 let storage = window.sessionStorage;
 
@@ -13,10 +14,9 @@ function deserialize() {
   try {
     let tempCart = JSON.parse(storage.glutCart);
     if (Array.isArray(tempCart))
-      return [];
-  } catch (ex) {
-    return [];
-  }
+      return tempCart;
+  } catch (ex) {}
+  return [];
 }
 
 function find(cart, upc) {
@@ -41,14 +41,14 @@ function validateQuantity(quantity) {
     throw 'quantity value invalid.';
 }
 
+let fireOnInit = 'change'.split(' ');
+
 module.exports = (function() {
   let cart = deserialize();
   return {
     inc: function(item) {
       if (typeof item === 'string')
-        item = {
-          upc: item
-        };
+        item = { upc: item };
       validateUpc(item.upc);
       let cartItem = find(cart, item.upc);
       if (cartItem)
@@ -56,12 +56,12 @@ module.exports = (function() {
       else
         throw 'glut.cart.inc() item does not exist';
       serialize(cart);
+      emitter.emit('inc');
+      emitter.emit('change');
     },
     dec: function(item) {
       if (typeof item === 'string')
-        item = {
-          upc: item
-        };
+        item = { upc: item };
       validateUpc(item.upc);
       let cartItem = find(cart, item.upc);
       if (cartItem) {
@@ -71,27 +71,33 @@ module.exports = (function() {
       } else
         throw 'glut.cart.dec() item does not exist';
       serialize(cart);
+      emitter.emit('dec');
+      emitter.emit('change');
     },
     remove: function(item) {
       if (typeof item === 'string')
-        item = {
-          upc: item
-        };
+        item = { upc: item };
       validateUpc(item.upc);
       let cartItem = find(cart, item.upc);
       if (cartItem && cartItem.index > -1)
         cart.splice(cartItem.index, 1);
       serialize(cart);
+      emitter.emit('remove');
+      emitter.emit('change');
     },
-    set: function(item) {
+    set: function(item, quantity) {
       validateUpc(item.upc);
-      validateQuantity(item.quantity);
+      validateQuantity(quantity);
       let cartItem = find(cart, item.upc);
       if (cartItem)
-        cartItem.quantity = item.quantity;
-      else
+        _.assign(cartItem, item, { quantity });
+      else {
+        item.quantity = quantity;
         cart.push(item);
+      }
       serialize(cart);
+      emitter.emit('set');
+      emitter.emit('change');
     },
     find: function(upc) {
       validateUpc(upc);
@@ -100,6 +106,8 @@ module.exports = (function() {
     clear: function() {
       cart = [];
       serialize(cart);
+      emitter.emit('clear');
+      emitter.emit('change');
     },
     list: function() {
       return _.clone(cart, true);
@@ -110,14 +118,31 @@ module.exports = (function() {
     toString: function() {
       return JSON.stringify(cart);
     },
-    getSubtotal: function() {
+    subtotal: function() {
       let subtotal = 0;
       cart.forEach(function(item) {
         let qty = item.quantity || 0;
-        let msrp = item.msrp || 0;
-        subtotal += qty * msrp;
+        let price = item.onSale ? item.salePrice : item.msrp;
+        subtotal += qty * price;
       });
       return subtotal;
+    },
+    totalQuantity: function() {
+      let qty = 0;
+      for (let item of cart)
+        qty += item.quantity;
+      return qty;
+    },
+    on: function(evt, callback) {
+      emitter.on(evt, callback);
+      if (fireOnInit.indexOf(evt) > -1)
+        emitter.emit(evt);
+    },
+    off: function(evt, callback) {
+      emitter.off(evt, callback);
+    },
+    emit: function(evt) {
+      emitter.emit(evt);
     }
   };
 })();

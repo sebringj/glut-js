@@ -1,0 +1,1 @@
+../dist/glut-min.js
