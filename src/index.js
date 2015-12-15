@@ -6,5 +6,6 @@ window.glut = {
   config: require('./config'),
   transactions: require('./transactions'),
   shipping: require('./shipping'),
-  payment: require('./payment')
+  payment: require('./payment'),
+  taxes: require('./taxes')
 };

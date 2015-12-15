@@ -46,6 +46,10 @@ let fireOnInit = 'change'.split(' ');
 module.exports = (function() {
   let cart = deserialize();
   return {
+    reload: function() {
+      cart = deserialize();
+      emitter.emit('change');
+    },
     inc: function(item) {
       if (typeof item === 'string')
         item = { upc: item };
